@@ -186,6 +186,9 @@ class GiveawaysManager extends EventEmitter {
             if (!Number.isInteger(options.winnerCount) || options.winnerCount < 1) {
                 return reject(`options.winnerCount is not a positive integer. (val=${options.winnerCount})`);
             }
+            if (options.isDrop && typeof options.isDrop !== 'boolean') {
+                return reject(`options.isDrop is not a boolean. (val=${options.isDrop})`);
+            }
             const giveaway = new Giveaway(this, {
                 startAt: Date.now(),
                 endAt: Date.now() + options.time,
@@ -205,7 +208,8 @@ class GiveawaysManager extends EventEmitter {
                 embedColor: options.embedColor,
                 embedColorEnd: options.embedColorEnd,
                 extraData: options.extraData,
-                lastChance: options.lastChance
+                lastChance: options.lastChance,
+                isDrop: options.isDrop
             });
             const embed = this.generateMainEmbed(giveaway);
             const message = await channel.send(giveaway.messages.giveaway, { embed });
@@ -403,6 +407,9 @@ class GiveawaysManager extends EventEmitter {
                 await this.editGiveaway(giveaway.messageID, giveaway.data);
                 return;
             }
+            if (giveaway.isDrop && giveaway.message.reactions.cache.get(giveaway.reaction).count - 1 >= giveaway.winnerCount) {
+                return this.end(giveaway.messageID).catch(() => {});
+            }
             const embed = this.generateMainEmbed(giveaway, giveaway.lastChance.enabled && giveaway.remainingTime < giveaway.lastChance.threshold);
             giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
             if (giveaway.remainingTime < this.options.updateCountdownEvery) {
@@ -446,6 +453,7 @@ class GiveawaysManager extends EventEmitter {
         if (packet.t === 'MESSAGE_REACTION_ADD') {
             if (giveaway.ended) return this.emit('endedGiveawayReactionAdded', giveaway, member, reaction);
             this.emit('giveawayReactionAdded', giveaway, member, reaction);
+            if (giveaway.isDrop && reaction.count >= giveaway.winnerCount) this.end(giveaway.messageID).catch(() => {});
         } else {
             this.emit('giveawayReactionRemoved', giveaway, member, reaction);
         }

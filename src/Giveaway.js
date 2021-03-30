@@ -189,6 +189,14 @@ class Giveaway extends EventEmitter {
     }
 
     /**
+     * Wheter the giveaway is a drop, or not. Drop means that if the amount of reactions to the giveaway is the same as "winnerCount" then it immediately ends.
+     * @type {Boolean}
+     */
+    get isDrop() {
+        return this.options.isDrop;
+    }
+
+    /**
      * Function to filter members. If true is returned, the member won't be able to win the giveaway.
      * @type {Function}
      */
@@ -295,7 +303,8 @@ class Giveaway extends EventEmitter {
             reaction: this.options.reaction,
             winnerIDs: this.winnerIDs,
             extraData: this.extraData,
-            lastChance: this.options.lastChance
+            lastChance: this.options.lastChance,
+            isDrop: this.options.isDrop
         };
         return baseData;
     }
@@ -343,7 +352,7 @@ class Giveaway extends EventEmitter {
         const entries = [];
         const cumulativeEntries = [];
 
-        if (this.bonusEntries.length) {
+        if (!this.isDrop && this.bonusEntries.length) {
             for (const obj of this.bonusEntries) {
                 if (typeof obj.bonus === 'function') {
                     try {
@@ -460,6 +469,7 @@ class Giveaway extends EventEmitter {
             if (Array.isArray(options.newBonusEntries) && options.newBonusEntries.every((elem) => typeof elem === 'object'))
                 this.options.bonusEntries = options.newBonusEntries;
             if (options.newExtraData) this.extraData = options.newExtraData;
+            if (typeof options.newIsDrop === 'boolean') this.options.isDrop = options.newIsDrop;
             // Call the db method
             await this.manager.editGiveaway(this.messageID, this.data);
             resolve(this);

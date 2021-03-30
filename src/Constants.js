@@ -41,6 +41,7 @@ exports.GiveawayMessages = {};
  * @property {GiveawayMessages} [messages] The giveaway messages
  * @property {any} [extraData] The extra data value for this giveaway
  * @property {LastChanceOptions} [lastChance] The last chance system options
+ * @property {Boolean} [isDrop] Wheter the giveaway is a drop, or not. Drop means that if the amount of reactions to the giveaway is the same as "winnerCount" then it immediately ends.
  */
 exports.GiveawayStartOptions = {};
 
@@ -171,6 +172,7 @@ exports.defaultRerollOptions = {
  * @property {GiveawayMessages} [newMessages] The new giveaway messages
  * @property {any} [newExtraData] The new extra data value for this giveaway
  * @property {BonusEntry[]} [newBonusEntries] The new BonusEntry objects
+ * @property {Boolean} [newIsDrop] Wheter to convert a drop to a normal giveaway or vice versa
  */
 exports.GiveawayEditOptions = {};
 
@@ -198,5 +200,6 @@ exports.GiveawayEditOptions = {};
  * @property {string?} [hostedBy] Mention of user who hosts the giveaway
  * @property {any} [extraData] The extra data value for this giveaway
  * @property {LastChanceOptions} [lastChance] The last chance system options
+ *  @property {Boolean} [isDrop] Wheter the giveaway is a drop, or not. Drop means that if the amount of reactions to the giveaway is the same as "winnerCount" then it immediately ends.
  */
 exports.GiveawayData = {};
