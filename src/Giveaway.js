@@ -506,11 +506,12 @@ class Giveaway extends EventEmitter {
                         .replace('{winners}', formattedWinners)
                         .replace('{prize}', this.prize)
                         .replace('{messageURL}', this.messageURL)
-                );
+                ).catch(() => {});
                 resolve(winners);
             } else {
                 const embed = this.manager.generateNoValidParticipantsEndEmbed(this);
                 this.message.edit(this.messages.giveawayEnded, { embed }).catch(() => {});
+                this.message.channel.send(`No winner(s) for the giveaway **${this.prize}**\n${this.messageURL}`).catch(() => {});
                 resolve([]);
             }
         });
