@@ -391,7 +391,7 @@ class Giveaway extends EventEmitter {
 
         // Fetch guild members
         if (this.manager.options.hasGuildMembersIntent) await guild.members.fetch();
-        
+
         // Fetch all reaction users
         let userCollection = await reaction.users.fetch();
         while (userCollection.size % 100 === 0) {
@@ -520,7 +520,7 @@ class Giveaway extends EventEmitter {
                 this.winnerIDs = winners.map((w) => w.id);
                 // this.manager.editGiveaway(this.messageID, this.data);
                 // const embed = this.manager.generateEndEmbed(this, winners);
-                // this.message.edit(this.messages.giveawayEnded, { embed }).catch(() => {});
+                this.message.edit(this.messages.giveawayEnded + '\n(Rerolled, embed below shows original winners)').catch(() => {});
                 const formattedWinners = winners.map((w) => '<@' + w.id + '>').join(', ');
                 this.channel.send(options.messages.congrat
                     .replace('{winners}', formattedWinners)
