@@ -390,7 +390,14 @@ class Giveaway extends EventEmitter {
         const guild = this.channel.guild;
         // Fetch guild members
         if (this.manager.options.hasGuildMembersIntent) await guild.members.fetch();
-        const users = (await reaction.users.fetch())
+
+        // Fetch all reaction users
+        let userCollection = await reaction.users.fetch();
+        while (userCollection.size % 100 === 0) {
+            userCollection = userCollection.concat(await reaction.users.fetch({ after: userCollection.lastKey() }));
+        }
+
+        const users = userCollection
             .filter((u) => !u.bot || u.bot === this.botsCanWin)
             .filter((u) => u.id !== this.message.client.user.id);
         if (!users.size) return [];
@@ -442,68 +449,6 @@ class Giveaway extends EventEmitter {
 
         return winners.map((user) => guild.members.cache.get(user.id) || user);
     }
-
-    // async roll(winnerCount = this.winnerCount) {
-    //     if (!this.message) return [];
-    //     // Pick the winner
-    //     const reactions = this.message.reactions.cache;
-    //     const reaction = reactions.get(this.reaction) || reactions.find((r) => r.emoji.name === this.reaction);
-    //     if (!reaction) return [];
-    //     const guild = this.channel.guild;
-    //     // Fetch guild members
-    //     if (this.manager.options.hasGuildMembersIntent) await guild.members.fetch();
-    //     const users = (await reaction.users.fetch())
-    //         .filter((u) => !u.bot || u.bot === this.botsCanWin)
-    //         .filter((u) => u.id !== this.message.client.user.id);
-    //     if (!users.size) return [];
-
-    //     // Bonus Entries
-    //     let userArray;
-    //     if (this.bonusEntries.length) {
-    //         userArray = users.array(); // Copy all users once
-    //         for (const user of userArray.slice()) {
-    //             const isUserValidEntry = await this.checkWinnerEntry(user);
-    //             if (!isUserValidEntry) continue;
-
-    //             const highestBonusEntries = await this.checkBonusEntries(user);
-    //             if (!highestBonusEntries) continue;
-
-    //             for (let i = 0; i < highestBonusEntries; i++) userArray.push(user);
-    //         }
-    //     }
-
-    //     let rolledWinners;
-    //     if (!userArray || userArray.length <= winnerCount)
-    //         rolledWinners = users.random(Math.min(winnerCount, users.size));
-    //     else {
-    //         /** 
-    //          * Random mechanism like https://github.com/discordjs/collection/blob/master/src/index.ts#L193
-    //          * because collections/maps do not allow dublicates and so we cannot use their built in "random" function
-    //          */
-    //         rolledWinners = Array.from({
-    //             length: Math.min(winnerCount, users.size)
-    //         }, () => userArray.splice(Math.floor(Math.random() * userArray.length), 1)[0]);
-    //     }
-
-    //     const winners = [];
-
-    //     for (const u of rolledWinners) {
-    //         const isValidEntry = !winners.some((winner) => winner.id === u.id) && (await this.checkWinnerEntry(u));
-    //         if (isValidEntry) winners.push(u);
-    //         else {
-    //             // Find a new winner
-    //             for (const user of userArray || users.array()) {
-    //                 const isUserValidEntry = !winners.some((winner) => winner.id === user.id) && (await this.checkWinnerEntry(user));
-    //                 if (isUserValidEntry) {
-    //                     winners.push(user);
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     return winners.map((user) => guild.member(user) || user);
-    // }
 
     /**
      * Edits the giveaway
