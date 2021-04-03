@@ -388,9 +388,10 @@ class Giveaway extends EventEmitter {
         const reaction = reactions.get(this.reaction) || reactions.find((r) => r.emoji.name === this.reaction);
         if (!reaction) return [];
         const guild = this.channel.guild;
+
         // Fetch guild members
         if (this.manager.options.hasGuildMembersIntent) await guild.members.fetch();
-
+        
         // Fetch all reaction users
         let userCollection = await reaction.users.fetch();
         while (userCollection.size % 100 === 0) {
@@ -402,34 +403,7 @@ class Giveaway extends EventEmitter {
             .filter((u) => u.id !== this.message.client.user.id);
         if (!users.size) return [];
 
-        // Bonus Entries
-        let userArray;
-        if (this.bonusEntries.length) {
-            userArray = users.array(); // Copy all users once
-            for (const user of userArray.slice()) {
-                const isUserValidEntry = await this.checkWinnerEntry(user);
-                if (!isUserValidEntry) continue;
-
-                const highestBonusEntries = await this.checkBonusEntries(user);
-                if (!highestBonusEntries) continue;
-
-                for (let i = 0; i < highestBonusEntries; i++) userArray.push(user);
-            }
-        }
-
-        let rolledWinners;
-        if (!userArray || userArray.length <= winnerCount)
-            rolledWinners = users.random(Math.min(winnerCount, users.size));
-        else {
-            /** 
-             * Random mechanism like https://github.com/discordjs/collection/blob/master/src/index.ts#L193
-             * because collections/maps do not allow dublicates and so we cannot use their built in "random" function
-             */
-            rolledWinners = Array.from({
-                length: Math.min(winnerCount, users.size)
-            }, () => userArray.splice(Math.floor(Math.random() * userArray.length), 1)[0]);
-        }
-
+        const rolledWinners = users.random(Math.min(winnerCount || this.winnerCount, users.size));
         const winners = [];
 
         for (const u of rolledWinners) {
@@ -437,7 +411,7 @@ class Giveaway extends EventEmitter {
             if (isValidEntry) winners.push(u);
             else {
                 // Find a new winner
-                for (const user of userArray || users.array()) {
+                for (const user of users.array()) {
                     const isUserValidEntry = !winners.some((winner) => winner.id === user.id) && (await this.checkWinnerEntry(user));
                     if (isUserValidEntry) {
                         winners.push(user);
@@ -529,7 +503,7 @@ class Giveaway extends EventEmitter {
      * @param {GiveawayRerollOptions} options
      * @returns {Promise<Discord.GuildMember[]>}
      */
-    reroll(options) {
+     reroll(options) {
         return new Promise(async (resolve, reject) => {
             if (!this.ended) {
                 return reject('Giveaway with message ID ' + this.messageID + ' is not ended.');
@@ -541,18 +515,17 @@ class Giveaway extends EventEmitter {
             if (!this.message) {
                 return reject('Unable to fetch message with ID ' + this.messageID + '.');
             }
-            const winners = await this.roll(options.winnerCount);
+            const winners = await this.roll(1);
             if (winners.length > 0) {
                 this.winnerIDs = winners.map((w) => w.id);
-                await this.manager.editGiveaway(this.messageID, this.data);
-                const embed = this.manager.generateEndEmbed(this, winners);
-                this.message.edit(this.messages.giveawayEnded, { embed }).catch(() => {});
+                // this.manager.editGiveaway(this.messageID, this.data);
+                // const embed = this.manager.generateEndEmbed(this, winners);
+                // this.message.edit(this.messages.giveawayEnded, { embed }).catch(() => {});
                 const formattedWinners = winners.map((w) => '<@' + w.id + '>').join(', ');
-                this.channel.send(
-                    options.messages.congrat
-                        .replace('{winners}', formattedWinners)
-                        .replace('{prize}', this.prize)
-                        .replace('{messageURL}', this.messageURL)
+                this.channel.send(options.messages.congrat
+                    .replace('{winners}', formattedWinners)
+                    .replace('{prize}', this.prize)
+                    .replace('{messageURL}', this.messageURL)
                 );
                 resolve(winners);
             } else {
