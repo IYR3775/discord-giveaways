@@ -411,23 +411,6 @@ class GiveawaysManager extends EventEmitter {
                 return this.end(giveaway.messageID).catch(() => {});
             }
             const embed = this.generateMainEmbed(giveaway, giveaway.lastChance.enabled && giveaway.remainingTime < giveaway.lastChance.threshold);
-            if (giveaway.remainingTime > 8.64e+7) {
-                setTimeout(() => {
-                    giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
-                }, 7.2e+6);
-            } else if (giveaway.remainingTime > 2.16e+7) {
-                setTimeout(() => {
-                    giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
-                }, 3.6e+6);
-            }else if (giveaway.remainingTime > 3.6e+6) {
-                setTimeout(() => {
-                    giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
-                }, 900000);
-            }else if (giveaway.remainingTime > 1.8e+6) {
-                setTimeout(() => {
-                    giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
-                }, 300000);
-            }
             giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
             if (giveaway.remainingTime < this.options.updateCountdownEvery) {
                 setTimeout(() => this.end.call(this, giveaway.messageID), giveaway.remainingTime);
