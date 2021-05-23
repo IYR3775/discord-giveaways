@@ -68,8 +68,6 @@ class GiveawaysManager extends EventEmitter {
                 (lastChanceEnabled ? giveaway.lastChance.content + '\n\n' : '') +
                 giveaway.messages.inviteToParticipate +
                     '\n' +
-                    giveaway.remainingTimeText +
-                    '\n' +
                     (giveaway.hostedBy ? giveaway.messages.hostedBy.replace('{user}', giveaway.hostedBy) : '')
             )
             .setTimestamp(new Date(giveaway.endAt).toISOString());
@@ -112,10 +110,11 @@ class GiveawaysManager extends EventEmitter {
     generateNoValidParticipantsEndEmbed(giveaway) {
         const embed = new Discord.MessageEmbed();
         embed
-            .setAuthor(giveaway.prize)
+            .setAuthor("")
             .setColor(giveaway.embedColorEnd)
-            .setFooter(giveaway.messages.endedAt)
+            .setFooter(`👑 ${giveaway.winnerCount}w* reroll users\n` +giveaway.messages.endedAt)
             .setDescription(
+                `**${giveaway.prize}**\n\n` +
                 giveaway.messages.noWinner +
                     '\n' +
                     (giveaway.hostedBy ? giveaway.messages.hostedBy.replace('{user}', giveaway.hostedBy) : '')
