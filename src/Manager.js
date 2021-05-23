@@ -61,10 +61,10 @@ class GiveawaysManager extends EventEmitter {
     generateMainEmbed(giveaway, lastChanceEnabled) {
         const embed = new Discord.MessageEmbed();
         embed
-            .setAuthor(giveaway.prize)
+            .setAuthor("")
             .setColor(lastChanceEnabled ? giveaway.lastChance.embedColor : giveaway.embedColor)
-            .setFooter(`${giveaway.winnerCount} ${giveaway.messages.winners} | ${giveaway.messages.embedFooter}`)
-            .setDescription(
+            .setFooter(`👑 ${giveaway.winnerCount} ${giveaway.messages.winners}\n👉 ${giveaway.messages.embedFooter}`)
+            .setDescription(`**${giveaway.prize}**\n\n` +
                 (lastChanceEnabled ? giveaway.lastChance.content + '\n\n' : '') +
                 giveaway.messages.inviteToParticipate +
                     '\n' +
@@ -91,10 +91,11 @@ class GiveawaysManager extends EventEmitter {
             formattedWinners;
         const embed = new Discord.MessageEmbed();
         embed
-            .setAuthor(giveaway.prize)
+            .setAuthor("")
             .setColor(giveaway.embedColorEnd)
-            .setFooter(giveaway.messages.endedAt)
+            .setFooter(`👑 ${giveaway.winnerCount}w* reroll users\n` + giveaway.messages.endedAt)
             .setDescription(
+                `**${giveaway.prize}**\n\n` +
                 winnersString +
                     '\n' +
                     (giveaway.hostedBy ? giveaway.messages.hostedBy.replace('{user}', giveaway.hostedBy) : '')
@@ -411,7 +412,7 @@ class GiveawaysManager extends EventEmitter {
                 return this.end(giveaway.messageID).catch(() => {});
             }
             const embed = this.generateMainEmbed(giveaway, giveaway.lastChance.enabled && giveaway.remainingTime < giveaway.lastChance.threshold);
-            giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
+            // giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
             if (giveaway.remainingTime < this.options.updateCountdownEvery) {
                 setTimeout(() => this.end.call(this, giveaway.messageID), giveaway.remainingTime);
             }
