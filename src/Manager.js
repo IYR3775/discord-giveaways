@@ -418,15 +418,15 @@ class GiveawaysManager extends EventEmitter {
             } else if (giveaway.remainingTime > 2.16e+7) {
                 setTimeout(() => {
                     giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
-                }, 900000);
+                }, 3.6e+6);
             }else if (giveaway.remainingTime > 3.6e+6) {
                 setTimeout(() => {
                     giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
-                }, 5000);
+                }, 900000);
             }else if (giveaway.remainingTime > 1.8e+6) {
                 setTimeout(() => {
                     giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
-                }, 5000);
+                }, 300000);
             }
             giveaway.message.edit(giveaway.messages.giveaway, { embed }).catch(() => {});
             if (giveaway.remainingTime < this.options.updateCountdownEvery) {
